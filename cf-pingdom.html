@@ -4,20 +4,17 @@
 
 <body>
 
-  {{> hello}}
-      {{> loginButtons}}
+  {{> apps}}
 
 </body>
 
-<template name="hello">
-  <button>Click Me</button>
-  <p>You've pressed the button {{counter}} times.</p>
+<template name="apps">
   <ul>
   {{#each result}}
   <li>
     {{entity.name}}
+    <br>
     {{entity.state}}
-    {{metadata.updated_at}}
     </li>
   {{/each}}
   </ul>
