@@ -85,13 +85,14 @@ if (Meteor.isServer) {
           },{upsert:true});
 
           //notify
-          if (app.entity.state === "STOPPED") {
-            // console.log("slack", app.entity.name)
-            SlackClient.send({
-              channel: '#buildpack-webhook',
-              text: app.entity.name + ' has stopped running!'
-            });
+          messages = {
+            "STOPPED": app.entity.name+" has stopped running!",
+            "STARTED": app.entity.name+" has recovered!",
           }
+          SlackClient.send({
+            channel: '#buildpack-webhook',
+            text: messages[app.entity.state]
+          });
         });
       }
     },1000);
