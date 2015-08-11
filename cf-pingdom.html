@@ -16,20 +16,25 @@
     {{entity.name}}
     <br>
     {{entity.state}}
-    </li>
+    <form class="healthcheck">
+      <input type="text" name="healthcheck-url" id="{{_id}}" placeholder="/healthcheck" value="{{healthcheckUrl}}" />
+      <button type="submit">Submit</button>
+    </form>
+  </li>
   {{/each}}
   </ul>
 </template>
+
 <template name="authorize">
   <form class="auth-form">
     <label>CF API server
-      <input type="text" name="api" placeholder="api.cf-app.com" />
+      <input type="text" name="api" placeholder="api.cf-app.com" value="{{settings.api}}"/>
     </label>
     <label>Username
-    <input type="text" name="username" placeholder="admin" />
+      <input type="text" name="username" placeholder="admin" value="{{settings.username}}" />
     </label>
     <label>Password
-    <input type="password" name="password" placeholder="admin" />
+      <input type="password" name="password" placeholder="admin" value="{{settings.password}}" />
     </label>
     <button type="submit">Submit</button>
   </form>

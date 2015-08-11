@@ -14,6 +14,10 @@ if (Meteor.isClient) {
       return Session.get('apps');
     }
   });
+
+  Template.authorize.helpers({
+    settings: function(){ return Settings.findOne({_id:1}); }
+  })
   Template.authorize.events({
     'submit .auth-form':function(event){
       event.preventDefault();
