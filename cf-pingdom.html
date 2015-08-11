@@ -3,6 +3,7 @@
 </head>
 
 <body>
+  {{> authorize }}
 
   {{> apps}}
 
@@ -18,4 +19,18 @@
     </li>
   {{/each}}
   </ul>
+</template>
+<template name="authorize">
+  <form class="auth-form">
+    <label>CF API server
+      <input type="text" name="api" placeholder="api.cf-app.com" />
+    </label>
+    <label>Username
+    <input type="text" name="username" placeholder="admin" />
+    </label>
+    <label>Password
+    <input type="password" name="password" placeholder="admin" />
+    </label>
+    <button type="submit">Submit</button>
+  </form>
 </template>

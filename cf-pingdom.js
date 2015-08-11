@@ -1,5 +1,6 @@
 _ = lodash;
 Apps = new Mongo.Collection('apps');
+Settings = new Mongo.Collection('settings');
 if (Meteor.isClient) {
   Meteor.startup(function(){
     Meteor.setInterval(function(){
@@ -11,6 +12,17 @@ if (Meteor.isClient) {
   Template.apps.helpers({
     result: function(){
       return Session.get('apps');
+    }
+  });
+  Template.authorize.events({
+    'submit .auth-form':function(event){
+      event.preventDefault();
+      var settings = {
+        api: $("[name=api]").val(),
+        username: $("[name=username]").val(),
+        password: $("[name=password]").val()
+      }
+      Meteor.call('authorize',settings);
     }
   });
 }
@@ -49,41 +61,49 @@ if (Meteor.isServer) {
   Meteor.startup(function () {
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
 
-    var cfClient = new CFClient({
-      host: "api.10.244.0.34.xip.io",
-      protocol: "https",
-      email: "admin",
-      password: "admin"
-    });
     Meteor.setInterval(function(){
-      var response = Async.runSync(function(done) {
-        cfClient.apps.get(function(err, apps) {
-          done(err, apps);
+      var cfSettings = Settings.findOne({_id: 1});
+      if (cfSettings) {
+        var cfClient = new CFClient({
+          host: cfSettings.api,
+          protocol: "https",
+          email: cfSettings.username,
+          password: cfSettings.password
         });
-      });
-      CurrentApps = Apps.find().fetch();
-      var different = compare(CurrentApps, response.result)
-      _.forEach(different,function(app){
-        Apps.update({_id:app._id},{
-          _id: app._id,
-          entity: app.entity
-        },{upsert:true});
 
-        //notify
-        if (app.entity.state === "STOPPED") {
-          // console.log("slack", app.entity.name)
-          SlackClient.send({
-            channel: '#buildpack-webhook',
-            text: app.entity.name + ' has stopped running!'
+        var response = Async.runSync(function(done) {
+          cfClient.apps.get(function(err, apps) {
+            done(err, apps);
           });
-        }
-      });
+        });
+        CurrentApps = Apps.find().fetch();
+        var different = compare(CurrentApps, response.result)
+        _.forEach(different,function(app){
+          Apps.update({_id:app._id},{
+            _id: app._id,
+            entity: app.entity
+          },{upsert:true});
+
+          //notify
+          if (app.entity.state === "STOPPED") {
+            // console.log("slack", app.entity.name)
+            SlackClient.send({
+              channel: '#buildpack-webhook',
+              text: app.entity.name + ' has stopped running!'
+            });
+          }
+        });
+      }
     },1000);
   });
   Meteor.methods({
     'getApps': function() {
       return CurrentApps;
     },
+    'authorize': function(settings){
+      settings._id = 1;
+      Settings.update({_id:1},settings,{upsert:true});
+    }
   })
 }
 
