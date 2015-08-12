@@ -1,4 +1,6 @@
 {
   "cloudfoundry-client": "0.10.0",
-  "slack-notify":"0.1.4"
+  "slack-notify":"0.1.4",
+  "request":"2.60.0",
+  "q":"1.4.1"
 }
